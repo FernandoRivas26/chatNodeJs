@@ -47,14 +47,16 @@ io.on('connection', socket => {  //CUANDO UN USUARIO SE CONECTA EMITE EL EVENTO 
     //ESCUCHA POR EVENTO DE UN MENSAJE DEL CHAT
     socket.on('chatMessage', msg => {
         const user = getCurrentUser(socket.id);
-        io.to(user.room).emit('message', formatMessage(user.username, msg));
+        if (user?.room) {
+            io.to(user.room).emit('message', formatMessage(user.username, msg));
+        }
 
     })
 
     socket.on('typingUser', () => {
         const user = getCurrentUser(socket.id);
         if (user?.room) {
-            io.to(user.room).emit('typingUserChat', { user: user.username, room: user.room })
+            socket.broadcast.to(user.room).emit('typingUserChat', { user: user.username, room: user.room })
         }
     });
 
