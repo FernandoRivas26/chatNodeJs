@@ -53,7 +53,9 @@ io.on('connection', socket => {  //CUANDO UN USUARIO SE CONECTA EMITE EL EVENTO 
 
     socket.on('typingUser', () => {
         const user = getCurrentUser(socket.id);
-        io.to(user.room).emit('typingUserChat', { user: user.username, room: user.room })
+        if (user?.room) {
+            io.to(user.room).emit('typingUserChat', { user: user.username, room: user.room })
+        }
     });
 
 
