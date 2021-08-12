@@ -28,7 +28,7 @@ io.on('connection', socket => {  //CUANDO UN USUARIO SE CONECTA EMITE EL EVENTO 
         socket.broadcast.to(user.room).emit('message', formatMessage(botName, `${user.username} has joined the chat.`)); //EMITE UN EVENTO A TODOS LOS USUARIOS EXCEPTO AL USUARIO QUE LO EMITE
 
         //USUARIOS EN LA SALA
-        io.to(user.room).on('roomUsers', { room: user.room, users: getRoomUsers(user.room) })
+        io.to(user.room).emit('roomUsers', { room: user.room, users: getRoomUsers(user.room) })
 
     });
 
@@ -38,7 +38,7 @@ io.on('connection', socket => {  //CUANDO UN USUARIO SE CONECTA EMITE EL EVENTO 
         if (user) {
             io.to(user.room).emit('message', formatMessage(botName, `${user.username} left the room`));
             //USUARIOS EN LA SALA
-            io.to(user.room).on('roomUsers', { room: user.room, users: getRoomUsers(user.room) })
+            io.to(user.room).emit('roomUsers', { room: user.room, users: getRoomUsers(user.room) })
         }
     })
     //io.emit(); //EMITE UN EVENTO A TODOS LOS USUARIOS
@@ -48,8 +48,13 @@ io.on('connection', socket => {  //CUANDO UN USUARIO SE CONECTA EMITE EL EVENTO 
     socket.on('chatMessage', msg => {
         const user = getCurrentUser(socket.id);
         io.to(user.room).emit('message', formatMessage(user.username, msg));
+
     })
 
+    socket.on('typingUser', () => {
+        const user = getCurrentUser(socket.id);
+        io.to(user.room).emit('typingUserChat', { user: user.username, room: user.room })
+    });
 
 
 })
